@@ -1,10 +1,12 @@
 # TODO: Support webhook mode.
+# TODO: Add support for email notification on error.
 
 import argparse
 import copy
 import fcntl
 import git
 import importlib
+import importlib.metadata
 import json
 import os
 import re
@@ -15,7 +17,6 @@ import urllib.request
 from weblate_reposync.parser import Parser, Field, ParserError
 
 class Const:
-    VERSION = "0.1.0"
     ENCODING = "utf-8"
     JSON_MIMETYPE = "application/json"
     LOCK = ".lock"
@@ -41,7 +42,7 @@ class Main:
     def _parse_args(self):
         # Parse command-line args.
 
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(description = importlib.metadata.metadata("weblate_reposync")["Summary"])
 
         parser.add_argument("-c", metavar = "CONFIG_FILE", action = "store", required = True, dest = "config_fname",
                             help = "configuration file")
@@ -51,7 +52,7 @@ class Main:
                             help = "dry run (will update local repositories, but don't touch weblate, implies -v)")
         parser.add_argument("-v", action = "store_true", dest = "verbose",
                             help = "turn on verbose output")
-        parser.add_argument("-V", action = "version", version = Const.VERSION,
+        parser.add_argument("-V", action = "version", version = importlib.metadata.version("weblate_reposync"),
                             help = "display version")
 
         args = parser.parse_args()
@@ -143,9 +144,11 @@ class Main:
         
             repo.git_repo = git_repo
 
-        # Loop over branches.
+        # Loop over branches: origin/ is removed from branch names.
 
-        branches = {branch.name: branch for branch in git_repo.branches}
+        remote = git_repo.remote()        
+
+        branches = {branch.name.split("/", 1)[1]: branch for branch in remote.refs}
         branch_names = list(branches.keys())
 
         branch_filter = component.branch_filter

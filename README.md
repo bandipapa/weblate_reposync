@@ -1,3 +1,3 @@
 # weblate_reposync
 
-Create Weblate translation components based on repo content.
+Create Weblate translation components based on repository content.
