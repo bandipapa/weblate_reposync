@@ -1,0 +1,24 @@
+[build-system]
+
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+
+name = "weblate_reposync"
+version = "0.1.0"
+description = "Create Weblate translation components based on repo content."
+authors = [
+    {name = "András Szalai", email = "andrew@bandipapa.com"}
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+
+requires-python = ">=3.8"
+dependencies = [
+    "GitPython>=3.1.27"
+]
+
+[project.scripts]
+
+weblate_reposync = "weblate_reposync.main:start"
